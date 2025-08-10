@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 ))
 @Getter
 @Setter
-@NoArgsConstructor
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

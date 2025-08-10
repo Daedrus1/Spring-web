@@ -4,12 +4,13 @@ import lombok.RequiredArgsConstructor;
 import mate.academy.springbootweb.dto.BookDto;
 import mate.academy.springbootweb.dto.CreateBookRequestDto;
 import mate.academy.springbootweb.service.BookService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/books") // с context-path /api получим /api/books
+@RequestMapping("/books")
 @RequiredArgsConstructor
 public class BookController {
     private final BookService service;
@@ -25,6 +26,7 @@ public class BookController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public BookDto create(@RequestBody CreateBookRequestDto request) {
         return service.create(request);
     }

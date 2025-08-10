@@ -8,11 +8,13 @@ import mate.academy.springbootweb.mapper.BookMapper;
 import mate.academy.springbootweb.model.Book;
 import mate.academy.springbootweb.repository.BookRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookServiceImpl implements BookService {
     private final BookRepository repository;
     private final BookMapper mapper;
@@ -32,9 +34,10 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public BookDto create(CreateBookRequestDto dto) {
-        Book entity = mapper.toModel(dto);
-        Book saved = repository.save(entity);
-        return mapper.toDto(saved);
+        Book book = mapper.toModel(dto);
+        repository.save(book);
+        return mapper.toDto(book);
     }
 }

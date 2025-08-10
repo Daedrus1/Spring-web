@@ -1,9 +1,8 @@
 package mate.academy.springbootweb.repository;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
-import lombok.RequiredArgsConstructor;
+import jakarta.persistence.PersistenceContext;
+import mate.academy.springbootweb.exception.DataProcessingException;
 import mate.academy.springbootweb.model.Book;
 import org.springframework.stereotype.Repository;
 
@@ -11,45 +10,42 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-@RequiredArgsConstructor
 public class BookRepositoryImpl implements BookRepository {
-    private final EntityManagerFactory entityManagerFactory;
+
+    @PersistenceContext
+    private EntityManager em;
 
     @Override
     public Book save(Book book) {
-        EntityTransaction tx = null;
-        try (EntityManager em = entityManagerFactory.createEntityManager()) {
-            tx = em.getTransaction();
-            tx.begin();
-
+        try {
             if (book.getId() == null) {
-                em.persist(book);        // INSERT
-            } else {
-                book = em.merge(book);   // UPDATE
+                em.persist(book);
+                return book;
             }
-
-            tx.commit();
-            return book;
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
+            return em.merge(book);
+        } catch (RuntimeException ex) {
+            throw new DataProcessingException(
+                    "Failed to save Book (id=" + book.getId() + ", isbn=" + book.getIsbn() + ")", ex
+            );
         }
     }
 
     @Override
     public List<Book> findAll() {
-        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+        try {
             return em.createQuery("SELECT b FROM Book b", Book.class)
                     .getResultList();
+        } catch (RuntimeException ex) {
+            throw new DataProcessingException("Failed to find all Books", ex);
         }
     }
 
     @Override
     public Optional<Book> findById(Long id) {
-        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+        try {
             return Optional.ofNullable(em.find(Book.class, id));
+        } catch (RuntimeException ex) {
+            throw new DataProcessingException("Failed to find Book by id=" + id, ex);
         }
     }
 }
