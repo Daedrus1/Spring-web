@@ -2,7 +2,6 @@ package mate.academy.springbootweb.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -11,7 +10,7 @@ import java.math.BigDecimal;
 @Table(name = "books" ,   uniqueConstraints = @UniqueConstraint(
         name = "uk_books_isbn",
         columnNames = "isbn"
-))
+        ))
 @Getter
 @Setter
 public class Book {

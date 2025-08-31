@@ -34,7 +34,6 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    @Transactional
     public BookDto create(CreateBookRequestDto dto) {
         Book book = mapper.toModel(dto);
         repository.save(book);
