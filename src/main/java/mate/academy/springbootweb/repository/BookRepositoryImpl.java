@@ -1,7 +1,10 @@
 package mate.academy.springbootweb.repository;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.PersistenceUnit;
 import mate.academy.springbootweb.exception.DataProcessingException;
 import mate.academy.springbootweb.model.Book;
 import org.springframework.stereotype.Repository;
@@ -12,40 +15,54 @@ import java.util.Optional;
 @Repository
 public class BookRepositoryImpl implements BookRepository {
 
-    @PersistenceContext
-    private EntityManager em;
+    @PersistenceUnit
+    private final EntityManagerFactory entityManagerFactory;
 
-    @Override
-    public Book save(Book book) {
-        try {
-            if (book.getId() == null) {
-                em.persist(book);
-                return book;
-            }
-            return em.merge(book);
-        } catch (RuntimeException ex) {
-            throw new DataProcessingException(
-                    "Failed to save Book (id=" + book.getId() + ", isbn=" + book.getIsbn() + ")", ex
-            );
-        }
+    public BookRepositoryImpl(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     @Override
-    public List<Book> findAll() {
-        try {
-            return em.createQuery("SELECT b FROM Book b", Book.class)
-                    .getResultList();
-        } catch (RuntimeException ex) {
-            throw new DataProcessingException("Failed to find all Books", ex);
+    public Book save(Book book) {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            EntityTransaction transaction = em.getTransaction();
+            try {
+                transaction.begin();
+                if (book.getId() == null) {
+                    em.persist(book);
+                } else {
+                    book = em.merge(book);
+                }
+                transaction.commit();
+                return book;
+            } catch (RuntimeException ex) {
+                if (transaction.isActive()) {
+                    transaction.rollback();
+                }
+                throw new DataProcessingException(
+                        "Failed to save Book (id=" + book.getId() + ", isbn=" + book.getIsbn() + ")", ex
+                );
+            }
         }
     }
 
     @Override
     public Optional<Book> findById(Long id) {
-        try {
-            return Optional.ofNullable(em.find(Book.class, id));
-        } catch (RuntimeException ex) {
-            throw new DataProcessingException("Failed to find Book by id=" + id, ex);
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            Book book = em.find(Book.class, id);
+            return Optional.ofNullable(book);
+        } catch (PersistenceException e) {
+            throw new DataProcessingException("Unable to find book with id " + id, e);
+        }
+    }
+
+    @Override
+    public List<Book> findAll() {
+        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+            return em.createQuery("SELECT b FROM Book b", Book.class)
+                    .getResultList();
+        } catch (PersistenceException e) {
+            throw new DataProcessingException("Unable to retrieve books", e);
         }
     }
 }
