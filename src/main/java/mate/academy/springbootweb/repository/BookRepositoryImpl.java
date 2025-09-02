@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+
 @Repository
 public class BookRepositoryImpl implements BookRepository {
 
@@ -24,27 +25,33 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Book save(Book book) {
+        EntityTransaction tx = null;
         try (EntityManager em = entityManagerFactory.createEntityManager()) {
-            EntityTransaction transaction = em.getTransaction();
-            try {
-                transaction.begin();
-                if (book.getId() == null) {
-                    em.persist(book);
-                } else {
-                    book = em.merge(book);
-                }
-                transaction.commit();
-                return book;
-            } catch (RuntimeException ex) {
-                if (transaction.isActive()) {
-                    transaction.rollback();
-                }
-                throw new DataProcessingException(
-                        "Failed to save Book (id=" + book.getId() + ", isbn=" + book.getIsbn() + ")", ex
-                );
+            tx = em.getTransaction();
+            tx.begin();
+
+            Book managed;
+            if (book.getId() == null) {
+                em.persist(book);
+                managed = book;
+            } else {
+                managed = em.merge(book);
             }
+
+            tx.commit();
+            return managed;
+
+        } catch (RuntimeException ex) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            throw new DataProcessingException(
+                    "Failed to save Book (id=" + book.getId() + ", isbn=" + book.getIsbn() + ")",
+                    ex
+            );
         }
     }
+
 
     @Override
     public Optional<Book> findById(Long id) {
