@@ -1,5 +1,6 @@
 package mate.academy.springbootweb.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import mate.academy.springbootweb.dto.BookDto;
 import mate.academy.springbootweb.dto.CreateBookRequestDto;
@@ -10,11 +11,9 @@ import mate.academy.springbootweb.repository.BookRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class BookServiceImpl implements BookService {
     private final BookRepository repository;
     private final BookMapper mapper;

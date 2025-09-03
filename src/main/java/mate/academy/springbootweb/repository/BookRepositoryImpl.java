@@ -4,29 +4,24 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.PersistenceException;
-import jakarta.persistence.PersistenceUnit;
+import java.util.List;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import mate.academy.springbootweb.exception.DataProcessingException;
 import mate.academy.springbootweb.model.Book;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-
-
 @Repository
+@RequiredArgsConstructor
 public class BookRepositoryImpl implements BookRepository {
 
-    @PersistenceUnit
     private final EntityManagerFactory entityManagerFactory;
-
-    public BookRepositoryImpl(EntityManagerFactory entityManagerFactory) {
-        this.entityManagerFactory = entityManagerFactory;
-    }
 
     @Override
     public Book save(Book book) {
+        EntityManager em = entityManagerFactory.createEntityManager();
         EntityTransaction tx = null;
-        try (EntityManager em = entityManagerFactory.createEntityManager()) {
+        try {
             tx = em.getTransaction();
             tx.begin();
 
@@ -40,18 +35,17 @@ public class BookRepositoryImpl implements BookRepository {
 
             tx.commit();
             return managed;
-
         } catch (RuntimeException ex) {
             if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
             throw new DataProcessingException(
-                    "Failed to save Book (id=" + book.getId() + ", isbn=" + book.getIsbn() + ")",
-                    ex
+                    "Failed to save Book (id=" + book.getId() + ", isbn=" + book.getIsbn() + ")", ex
             );
+        } finally {
+            em.close();
         }
     }
-
 
     @Override
     public Optional<Book> findById(Long id) {
