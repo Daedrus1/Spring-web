@@ -10,6 +10,8 @@ import jakarta.persistence.UniqueConstraint;
 import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "books", uniqueConstraints = @UniqueConstraint(
@@ -18,6 +20,8 @@ import lombok.Setter;
         ))
 @Getter
 @Setter
+@SQLDelete(sql = "UPDATE books SET deleted = true WHERE id = ?")
+@Where(clause = "deleted = false")
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,5 +38,7 @@ public class Book {
     private String description;
     @Column(length = 512)
     private String coverImage;
+    @Column(nullable = false)
+    private boolean deleted = false;
 
 }
