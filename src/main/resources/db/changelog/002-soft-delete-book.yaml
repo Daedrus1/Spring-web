@@ -1,13 +1,7 @@
 databaseChangeLog:
   - changeSet:
-      id: 002-add-deleted-to-books
+      id: 002-soft-delete-book
       author: you
-      preConditions:
-        - onFail: MARK_RAN
-          not:
-            columnExists:
-              tableName: books
-              columnName: deleted
       changes:
         - addColumn:
             tableName: books
