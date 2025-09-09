@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-add-deleted-to-books
+      author: you
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            columnExists:
+              tableName: books
+              columnName: deleted
+      changes:
+        - addColumn:
+            tableName: books
+            columns:
+              - column:
+                  name: deleted
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+        - addNotNullConstraint:
+            tableName: books
+            columnName: deleted
+            columnDataType: BOOLEAN
