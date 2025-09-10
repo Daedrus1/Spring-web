@@ -35,7 +35,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: description
-                  type: CLOB
+                  type: VARCHAR(255)
               - column:
                   name: cover_image
-                  type: VARCHAR(1024)
+                  type: VARCHAR(255)
