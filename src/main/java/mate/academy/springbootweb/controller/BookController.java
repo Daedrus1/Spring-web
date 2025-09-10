@@ -41,7 +41,6 @@ public class BookController {
         return service.update(id, dto);
     }
 
-    // DELETE: /api/books/{id}
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
