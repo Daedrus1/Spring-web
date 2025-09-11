@@ -7,10 +7,8 @@ databaseChangeLog:
             tableName: books
             columns:
               - column:
-                  name: deleted
+                  name: is_deleted
                   type: BOOLEAN
                   defaultValueBoolean: false
-        - addNotNullConstraint:
-            tableName: books
-            columnName: deleted
-            columnDataType: BOOLEAN
+                  constraints:
+                    nullable: false

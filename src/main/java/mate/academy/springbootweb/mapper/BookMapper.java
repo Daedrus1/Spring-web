@@ -12,14 +12,16 @@ import org.mapstruct.MappingTarget;
 public interface BookMapper {
     BookDto toDto(Book book);
 
+    BookDto toDto(CreateBookRequestDto dto);
+
     @Mapping(target = "id", ignore = true)
     Book toModel(CreateBookRequestDto dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", ignore = true)
-    void updateEntityFromDto(BookDto dto, @MappingTarget Book target);
+    void updateEntityFromDto(UpdateBookRequestDto dto, @MappingTarget Book target);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "deleted", ignore = true)
-    void updateEntityFromDto(UpdateBookRequestDto dto, @MappingTarget Book target);
+    void updateEntityFromDto(BookDto dto, @MappingTarget Book target);
 }
