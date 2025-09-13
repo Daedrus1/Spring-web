@@ -34,8 +34,6 @@ public class Book {
     private String isbn;
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
-    @Column(columnDefinition = "TEXT")
-    private String description;
     private String coverImage;
     @Column(name = "is_deleted", nullable = false)
     private boolean deleted = false;
