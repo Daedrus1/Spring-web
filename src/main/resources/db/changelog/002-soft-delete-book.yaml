@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-soft-delete-book
+      author: you
+      changes:
+        - addColumn:
+            tableName: books
+            columns:
+              - column:
+                  name: is_deleted
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
